@@ -30,15 +30,7 @@ class PostController extends Controller
      * @return mixed
      */
     public function show($id){
-        try {
-            return Post::findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "error" => [
-                    "message" => "Post not found",
-                ]
-            ], 404);
-        }
+        return Post::findOrFail($id);
     }
 
     /**

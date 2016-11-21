@@ -2,6 +2,7 @@
 
 namespace Tests\App\Http\Controllers;
 
+use Laravel\Lumen\Testing\DatabaseMigrations;
 use TestCase;
 
 class PostControllerTest extends TestCase
@@ -15,27 +16,27 @@ class PostControllerTest extends TestCase
     /** @test * */
     public function index_should_return_a_collection_of_records()
     {
-        $this
-            ->get('/posts')
-            ->seeJson([
-                'title' => 'First Post'
-            ])
-            ->seeJson([
-                'title' => 'Second Post'
+        $posts = factory('App\Post', 2)->create();
+        $this->get('/posts');
+        foreach ($posts as $post) {
+            $this->seeJson([
+                'title' => $post->title
             ]);
+        }
     }
 
     /** @test * */
     public function show_should_return_a_valid_post()
     {
+        $post = factory('App\Post')->create();
         $this
-            ->get('/posts/1')
+            ->get("/posts/{$post->id}")
             ->seeStatusCode(200)
             ->seeJson([
-                'id' => 1,
-                'title' => 'First Post',
-                'user_id' => 1,
-                'category_id' => 1,
+                'id' => $post->id,
+                'title' => $post->title,
+                'user_id' => $post->user_id,
+                'category_id' => $post->category_id,
             ]);
         $data = json_decode($this->response->getContent(), true);
         $this->assertArrayHasKey('content', $data);
@@ -44,12 +45,11 @@ class PostControllerTest extends TestCase
     /** @test * */
     public function show_should_fail_when_post_id_does_not_exist()
     {
-        $this->get('/posts/9999')
+        $this->get('/posts/9999', ['Accept' => 'application/json'])
             ->seeStatusCode(404)
             ->seeJson([
-                "error" => [
-                    "message" => "Post not found",
-                ]
+                'message' => 'Not Found',
+                'status' => 404,
             ]);
 
     }
@@ -137,11 +137,12 @@ class PostControllerTest extends TestCase
 
     /** @test */
     public function destroy_should_remove_an_invalid_id(){
-        $this->delete('/posts/2');
+        $post = factory('App\Post')->create();
+        $this->delete("/posts/{$post->id}");
         $this->seeStatusCode(204)
             ->isEmpty();
         $this->notSeeInDatabase('posts',[
-            'id' => 2,
+            'id' => $post->id,
         ]);
     }
 
@@ -161,4 +162,5 @@ class PostControllerTest extends TestCase
         $this->delete('/posts/this-is-invalid')
             ->seeStatusCode(404);
     }
+
 }

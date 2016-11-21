@@ -25,6 +25,7 @@
     <php>
         <env name="APP_ENV" value="testing"/>
         <!-- Test Database -->
+        <env name="DB_DATABASE" value="vblog-testing"/>
         <env name="CACHE_DRIVER" value="array"/>
     </php>
 </phpunit>
