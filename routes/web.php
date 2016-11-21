@@ -17,3 +17,8 @@ $app->post('auth/sign_in', 'AuthController@signIn');
 
 // Post API
 $app->get('/posts', 'PostController@index');
+$app->get('/posts/{id:[\d]+}', [
+    'as' => 'posts.show',
+    'uses' => 'PostController@show',
+]);
+$app->post('/posts', 'PostController@store');
