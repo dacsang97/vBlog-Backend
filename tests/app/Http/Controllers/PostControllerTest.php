@@ -95,4 +95,70 @@ class PostControllerTest extends TestCase
             ->seeHeaderWithRegExp('Location', '#/posts/[\d]+$#');
     }
 
+    /** @test */
+    public function update_should_only_change_fillable_fields(){
+        $this->notSeeInDatabase('posts', [
+            'title' => 'The first post'
+        ]);
+
+        $this->put('/posts/1', [
+            'title' => 'The first post',
+        ]);
+
+        $this
+            ->seeStatusCode(200)
+            ->seeJson([
+                'title' => 'The first post',
+            ])
+            ->seeInDatabase('posts', [
+                'title' => 'The first post',
+            ]);
+    }
+
+    /** @test */
+    public function update_should_fail_with_a_invalid_id(){
+        $this->put('/posts/999999', [
+            'title' => 'The first post',
+        ]);
+        $this
+            ->seeStatusCode(404)
+            ->seeJsonEquals([
+                'error' => [
+                    'message' => 'Post not found'
+                ]
+            ]);
+    }
+
+    /** @test */
+    public function update_should_not_match_an_invalid_route(){
+        $this->put('/posts/this-is-invalid')
+          ->seeStatusCode(404);
+    }
+
+    /** @test */
+    public function destroy_should_remove_an_invalid_id(){
+        $this->delete('/posts/2');
+        $this->seeStatusCode(204)
+            ->isEmpty();
+        $this->notSeeInDatabase('posts',[
+            'id' => 2,
+        ]);
+    }
+
+    /** @test */
+    public function destroy_should_return_404_with_an_invalid_id(){
+        $this->delete('/posts/99999');
+        $this->seeStatusCode(404)
+            ->seeJsonEquals([
+                'error' => [
+                    'message' => 'Post not found'
+                ]
+            ]);
+    }
+
+    /** @test */
+    public function destroy_should_not_match_an_invalid_route(){
+        $this->delete('/posts/this-is-invalid')
+            ->seeStatusCode(404);
+    }
 }

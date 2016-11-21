@@ -41,6 +41,12 @@ class PostController extends Controller
         }
     }
 
+    /**
+     * POST /posts
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request){
         $post = Post::create($request->all());
 
@@ -49,5 +55,47 @@ class PostController extends Controller
         ], 201, [
             'Location' => route('posts.show', ['id' => $post->id])
         ]);
+    }
+
+    /**
+     * PUT /posts/{id}
+     *
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, $id){
+        try {
+            $post = Post::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                "error" => [
+                    "message" => "Post not found",
+                ]
+            ], 404);
+        }
+        $post->fill($request->all());
+        $post->save();
+        return $post;
+    }
+
+    /**
+     * DELETE /posts/{id}
+     *
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Laravel\Lumen\Http\ResponseFactory
+     */
+    public function destroy($id){
+        try {
+            $post = Post::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                "error" => [
+                    "message" => "Post not found",
+                ]
+            ], 404);
+        }
+        $post->delete();
+        return response(null, 204);
     }
 }

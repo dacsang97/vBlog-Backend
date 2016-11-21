@@ -16,9 +16,14 @@
 $app->post('auth/sign_in', 'AuthController@signIn');
 
 // Post API
-$app->get('/posts', 'PostController@index');
-$app->get('/posts/{id:[\d]+}', [
-    'as' => 'posts.show',
-    'uses' => 'PostController@show',
-]);
-$app->post('/posts', 'PostController@store');
+
+$app->group(['prefix'=>'posts'], function() use ($app) {
+    $app->get('/', 'PostController@index');
+    $app->get('/{id:[\d]+}', [
+        'as' => 'posts.show',
+        'uses' => 'PostController@show',
+    ]);
+    $app->post('/', 'PostController@store');
+    $app->put('/{id:[\d]+}', 'PostController@update');
+    $app->delete('/{id:[\d]+}', 'PostController@destroy');
+});
