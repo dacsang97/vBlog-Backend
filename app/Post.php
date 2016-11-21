@@ -9,17 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 
-class User extends Model implements AuthenticatableContract, AuthorizableContract
+class Post extends Model
 {
-    use Authenticatable, Authorizable;
-
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'email',
+        'title',
+        'content',
     ];
 
     /**
@@ -28,18 +27,15 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $hidden = [
-        'password',
+        'created_at',
+        'updated_at',
     ];
 
-    public function role(){
-        $this->belongsTo('App\Role');
+    public function category(){
+        $this->belongsTo('App\Category');
     }
 
-    public function posts(){
-        $this->hasMany('App\Post');
-    }
-
-    public function verifyPassword($password){
-        return Hash::check($password, $this->password);
+    public function user(){
+        $this->belongsTo('App\User');
     }
 }

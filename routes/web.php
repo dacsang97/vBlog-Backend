@@ -11,4 +11,9 @@
 |
 */
 
+// Authenticate API
+
 $app->post('auth/sign_in', 'AuthController@signIn');
+
+// Post API
+$app->get('/posts', 'PostController@index');
