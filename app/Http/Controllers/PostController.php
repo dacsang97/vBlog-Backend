@@ -20,7 +20,9 @@ class PostController extends Controller
      * @return array
      */
     public function index(){
-        return Post::all();
+        return [
+            'data' => Post::all()->toArray()
+        ];
     }
 
     /**
@@ -30,7 +32,9 @@ class PostController extends Controller
      * @return mixed
      */
     public function show($id){
-        return Post::findOrFail($id);
+        return [
+            'data' => Post::findOrFail($id)->toArray(),
+        ];
     }
 
     /**
@@ -43,7 +47,7 @@ class PostController extends Controller
         $post = Post::create($request->all());
 
         return response()->json([
-            'created' => true
+            'data' => $post->toArray()
         ], 201, [
             'Location' => route('posts.show', ['id' => $post->id])
         ]);
@@ -68,7 +72,9 @@ class PostController extends Controller
         }
         $post->fill($request->all());
         $post->save();
-        return $post;
+        return [
+            'data' => $post->toArray(),
+        ];
     }
 
     /**

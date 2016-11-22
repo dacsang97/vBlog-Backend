@@ -18,28 +18,23 @@ class PostControllerTest extends TestCase
     {
         $posts = factory('App\Post', 2)->create();
         $this->get('/posts');
-        foreach ($posts as $post) {
-            $this->seeJson([
-                'title' => $post->title
-            ]);
-        }
+        $expected = [
+            'data' => $posts->toArray()
+        ];
+        $this->seeJsonEquals($expected);
     }
 
     /** @test * */
     public function show_should_return_a_valid_post()
     {
         $post = factory('App\Post')->create();
+        $expected = [
+            'data' => $post->toArray()
+        ];
         $this
             ->get("/posts/{$post->id}")
             ->seeStatusCode(200)
-            ->seeJson([
-                'id' => $post->id,
-                'title' => $post->title,
-                'user_id' => $post->user_id,
-                'category_id' => $post->category_id,
-            ]);
-        $data = json_decode($this->response->getContent(), true);
-        $this->assertArrayHasKey('content', $data);
+            ->seeJsonEquals($expected);
     }
 
     /** @test * */
@@ -75,9 +70,15 @@ class PostControllerTest extends TestCase
             'category_id' => 3,
         ]);
 
-        $this
-            ->seeJson(['created' => true])
-            ->seeInDatabase('posts', ['title' => 'Third post']);
+        $body = json_decode($this->response->getContent(), true);
+        $this->assertArrayHasKey('data', $body);
+
+        $data = $body['data'];
+
+        $this->assertEquals('Third post', $data['title']);
+        $this->assertEquals('Day la bai viet so 3', $data['content']);
+        $this->assertTrue($data['id'] > 0, 'Expected a positive integer, but did not see one.');
+        $this->seeInDatabase('posts', ['title' => 'Third post']);
     }
 
     /** @test */
@@ -97,22 +98,30 @@ class PostControllerTest extends TestCase
 
     /** @test */
     public function update_should_only_change_fillable_fields(){
+        $post =factory('App\Post')->create([
+            'title' => 'ABCD Post',
+            'content' => 'cndmcndmnjk ,c, lk kgjf c,v,osd,vlc dlgkslkg vx,cmv,',
+            'user_id' => 1,
+            'category_id' => 1,
+        ]);
         $this->notSeeInDatabase('posts', [
-            'title' => 'The first post'
+            'title' => 'The ABCD Post'
         ]);
 
-        $this->put('/posts/1', [
-            'title' => 'The first post',
+        $this->put("/posts/{$post->id}", [
+            'title' => 'The ABCD Post',
         ]);
 
         $this
             ->seeStatusCode(200)
             ->seeJson([
-                'title' => 'The first post',
+                'title' => 'The ABCD Post',
             ])
             ->seeInDatabase('posts', [
-                'title' => 'The first post',
+                'title' => 'The ABCD Post',
             ]);
+        $body = json_decode($this->response->getContent(), true);
+        $this->assertArrayHasKey('data', $body);
     }
 
     /** @test */
