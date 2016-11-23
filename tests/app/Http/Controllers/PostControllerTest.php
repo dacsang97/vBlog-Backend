@@ -2,11 +2,22 @@
 
 namespace Tests\App\Http\Controllers;
 
+use App\Transformer\PostTransformer;
+use Carbon\Carbon;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use TestCase;
 
 class PostControllerTest extends TestCase
 {
+    public function setUp(){
+        parent::setUp();
+        Carbon::setTestNow(Carbon::now('UTC'));
+    }
+
+    public function tearDown(){
+        parent::tearDown();
+        Carbon::setTestNow();
+    }
     /** @test * */
     public function index_status_code_should_be_200()
     {
@@ -18,23 +29,38 @@ class PostControllerTest extends TestCase
     {
         $posts = factory('App\Post', 2)->create();
         $this->get('/posts');
-        $expected = [
-            'data' => $posts->toArray()
-        ];
-        $this->seeJsonEquals($expected);
+        $content = json_decode($this->response->getContent(), true);
+        $this->assertArrayHasKey('data', $content);
+        foreach ($posts as $post) {
+            $this
+                ->seeJson([
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'content' => $post->content,
+                    'created' => $post->created_at->toIso8601String(),
+                    'updated' => $post->updated_at->toIso8601String(),
+                    'released' => $post->created_at->diffForHumans(),
+                ]);
+        }
     }
 
     /** @test * */
     public function show_should_return_a_valid_post()
     {
         $post = factory('App\Post')->create();
-        $expected = [
-            'data' => $post->toArray()
-        ];
+        $this->get("/posts/{$post->id}");
+        $content = json_decode($this->response->getContent(), true);
+        $this->assertArrayHasKey('data', $content);
         $this
-            ->get("/posts/{$post->id}")
             ->seeStatusCode(200)
-            ->seeJsonEquals($expected);
+            ->seeJson([
+                'id' => $post->id,
+                'title' => $post->title,
+                'content' => $post->content,
+                'created' => $post->created_at->toIso8601String(),
+                'updated' => $post->updated_at->toIso8601String(),
+                'released' => $post->created_at->diffForHumans(),
+            ]);
     }
 
     /** @test * */
@@ -77,6 +103,10 @@ class PostControllerTest extends TestCase
 
         $this->assertEquals('Third post', $data['title']);
         $this->assertEquals('Day la bai viet so 3', $data['content']);
+        $this->assertArrayHasKey('created', $data);
+        $this->assertEquals(Carbon::now()->toIso8601String(), $data['created']);
+        $this->assertArrayHasKey('updated', $data);
+        $this->assertEquals(Carbon::now()->toIso8601String(), $data['updated']);
         $this->assertTrue($data['id'] > 0, 'Expected a positive integer, but did not see one.');
         $this->seeInDatabase('posts', ['title' => 'Third post']);
     }
@@ -122,6 +152,11 @@ class PostControllerTest extends TestCase
             ]);
         $body = json_decode($this->response->getContent(), true);
         $this->assertArrayHasKey('data', $body);
+        $data = $body['data'];
+        $this->assertArrayHasKey('created', $data);
+        $this->assertEquals(Carbon::now()->toIso8601String(), $data['created']);
+        $this->assertArrayHasKey('updated', $data);
+        $this->assertEquals(Carbon::now()->toIso8601String(), $data['updated']);
     }
 
     /** @test */

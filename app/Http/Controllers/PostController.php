@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Transformer\PostTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Post;
@@ -9,20 +10,13 @@ use Mockery\CountValidator\Exception;
 
 class PostController extends Controller
 {
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * GET /posts
      *
      * @return array
      */
     public function index(){
-        return [
-            'data' => Post::all()->toArray()
-        ];
+        return $this->collection(Post::all(), new PostTransformer());
     }
 
     /**
@@ -32,9 +26,7 @@ class PostController extends Controller
      * @return mixed
      */
     public function show($id){
-        return [
-            'data' => Post::findOrFail($id)->toArray(),
-        ];
+        return $this->item(Post::findOrFail($id), new PostTransformer());
     }
 
     /**
@@ -45,10 +37,8 @@ class PostController extends Controller
      */
     public function store(Request $request){
         $post = Post::create($request->all());
-
-        return response()->json([
-            'data' => $post->toArray()
-        ], 201, [
+        $data = $this->item($post, new PostTransformer());
+        return response()->json($data, 201, [
             'Location' => route('posts.show', ['id' => $post->id])
         ]);
     }
@@ -72,9 +62,7 @@ class PostController extends Controller
         }
         $post->fill($request->all());
         $post->save();
-        return [
-            'data' => $post->toArray(),
-        ];
+        return $this->item($post, new PostTransformer());
     }
 
     /**
