@@ -140,6 +140,7 @@ class PostControllerTest extends TestCase
 
         $this->put("/posts/{$post->id}", [
             'title' => 'The ABCD Post',
+            'content' => 'fodfdojfdkj',
         ]);
 
         $this

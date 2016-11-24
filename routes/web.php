@@ -27,3 +27,8 @@ $app->group(['prefix'=>'posts'], function() use ($app) {
     $app->put('/{id:[\d]+}', 'PostController@update');
     $app->delete('/{id:[\d]+}', 'PostController@destroy');
 });
+
+$app->group(['prefix' => 'users'], function() use($app) {
+    $app->get('/', 'UserController@index');
+    $app->get('/{id:[\d]+}', 'UserController@show');
+});

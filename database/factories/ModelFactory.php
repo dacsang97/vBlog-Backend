@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Hash;
+
 $factory->define(App\Post::class, function (Faker\Generator $faker) {
     $title = $faker->sentence(rand(3, 10));
     return [
@@ -18,5 +20,13 @@ $factory->define(App\Post::class, function (Faker\Generator $faker) {
         'content' => $faker->text,
         'user_id' => 1,
         'category_id' => $faker->numberBetween(1, 4),
+    ];
+});
+
+$factory->define(App\User::class, function(Faker\Generator $faker){
+    return [
+        'name' => $faker->name,
+        'email' => $faker->email,
+        'password' => Hash::make('123456'),
     ];
 });

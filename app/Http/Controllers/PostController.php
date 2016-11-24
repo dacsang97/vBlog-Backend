@@ -60,6 +60,10 @@ class PostController extends Controller
                 ]
             ], 404);
         }
+        $this->validate($request, [
+            'title' => 'required',
+            'content' => 'required',
+        ]);
         $post->fill($request->all());
         $post->save();
         return $this->item($post, new PostTransformer());

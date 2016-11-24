@@ -32,11 +32,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     ];
 
     public function role(){
-        $this->belongsTo('App\Role');
+        return $this->belongsTo('App\Role');
     }
 
     public function posts(){
-        $this->hasMany('App\Post');
+        return $this->hasMany('App\Post');
     }
 
     public function verifyPassword($password){
