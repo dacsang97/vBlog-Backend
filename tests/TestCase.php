@@ -48,4 +48,19 @@ class TestCase extends Laravel\Lumen\Testing\TestCase
         return $this;
     }
 
+    public function postFactory($count = 1) {
+        $posts = factory('App\Post', $count)->make();
+        $user = factory('App\User')->create();
+        if ($count == 1) {
+            $posts->user()->associate($user);
+            $posts->save();
+        } else {
+            $posts->each(function ($post) use ($user) {
+                $post->user()->associate($user);
+                $post->save();
+            });
+        }
+        return $posts;
+    }
+
 }

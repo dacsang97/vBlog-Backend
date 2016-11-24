@@ -18,7 +18,6 @@ $factory->define(App\Post::class, function (Faker\Generator $faker) {
     return [
         'title' => substr($title, 0, strlen($title) - 1),
         'content' => $faker->text,
-        'user_id' => 1,
         'category_id' => $faker->numberBetween(1, 4),
     ];
 });
