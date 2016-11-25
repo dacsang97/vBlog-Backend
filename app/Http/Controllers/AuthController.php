@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Transformer\UserTransformer;
+use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use App\User;
@@ -30,7 +32,11 @@ class AuthController extends Controller
             ], 401);
         } else {
             if ($user->verifyPassword($data['password'])) {
-                return response()->json($this->generateToken($user));
+                $subject = new UserTransformer();
+                return response()->json([
+                    'user' => $subject->transform($user),
+                    'token' => $this->generateToken($user),
+                ]);
             } else {
                 return response()->json([
                     'status' => 401,
@@ -48,16 +54,16 @@ class AuthController extends Controller
      * @return array
      */
     public function generateToken($user) {
-        $ttl = 2 * 30 * 24 * 60 * 60; // 2 months
         $secret_key = env('TOKEN_SECRET');
         $payload = array(
-            'id' => $user->id,
+            'sub' => $user->id,
+            'iss' => env('BASE_URL'),
+            'iat' => Carbon::now()->timestamp,
+            'exp' => Carbon::now()->addWeeks(2)->timestamp,
+            'nbf' => Carbon::now()->timestamp
         );
         $jwt = JWT::encode($payload, $secret_key);
 
-        return [
-            'token' => $jwt,
-            'ttl' => $ttl,
-        ];
+        return $jwt;
     }
 }

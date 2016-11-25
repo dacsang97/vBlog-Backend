@@ -30,5 +30,5 @@ $app->group(['prefix'=>'posts'], function() use ($app) {
 
 $app->group(['prefix' => 'users'], function() use($app) {
     $app->get('/', 'UserController@index');
-    $app->get('/{id:[\d]+}', 'UserController@show');
+    $app->get('/{id:[\d]+}', ['middleware' => 'auth', 'uses' => 'UserController@show']);
 });
