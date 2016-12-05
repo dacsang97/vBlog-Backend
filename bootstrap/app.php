@@ -59,9 +59,9 @@ $app->singleton(
 |
 */
 //
-// $app->middleware([
-//    App\Http\Middleware\RequestLogMiddleware::class
-// ]);
+ $app->middleware([
+     App\Http\Middleware\CorsMiddleware::class,
+ ]);
 
  $app->routeMiddleware([
      'auth' => App\Http\Middleware\ValidateTokenMiddleware::class,

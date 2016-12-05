@@ -10,7 +10,8 @@
         "vlucas/phpdotenv": "~2.2",
         "wn/lumen-generators": "^1.1",
         "firebase/php-jwt": "^4.0",
-        "league/fractal": "^0.14.0"
+        "league/fractal": "^0.14.0",
+        "palanik/lumen-cors": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
