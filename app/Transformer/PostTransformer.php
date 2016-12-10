@@ -6,6 +6,10 @@ use App\Post;
 use League\Fractal\TransformerAbstract;
 
 class PostTransformer extends TransformerAbstract{
+    protected $availableIncludes = ['author'];
+    public function includeAuthor(Post $post) {
+        return $this->item($post->user, new UserTransformer());
+    }
     public function transform(Post $post){
         return [
             'id' => $post->id,

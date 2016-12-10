@@ -16,7 +16,7 @@ class PostController extends Controller
      * @return array
      */
     public function index(){
-        return $this->collection(Post::all(), new PostTransformer());
+        return $this->collection(Post::orderBy('id', 'desc')->get(), new PostTransformer());
     }
 
     /**
